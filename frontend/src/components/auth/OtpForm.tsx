@@ -112,9 +112,15 @@ const OtpForm: React.FC = () => {
             }else{
                 toast.error(response.message || "Failed to resend OTP");
             }
-        } catch (error) {
+        } catch (error: unknown) {
             console.error(error);
-            const errorMessage = error?.response?.data?.message;
+            const errorMessage =
+              typeof error === 'object' &&
+              error !== null &&
+              'response' in error &&
+              typeof (error as { response?: { data?: { message?: unknown } } }).response?.data?.message === 'string'
+                ? ((error as { response?: { data?: { message?: string } } }).response?.data?.message as string)
+                : "Failed to resend OTP";
             toast.error(errorMessage)
         }
     }
@@ -135,7 +141,9 @@ const OtpForm: React.FC = () => {
                         {otp.map((digit, index) => (
                             <input
                                 key={index}
-                                ref={(el) => inputRefs.current[index] = el}
+                                ref={(el) => {
+                                    inputRefs.current[index] = el;
+                                }}
                                 type="text"
                                 value={digit}
                                 onChange={(e) => handleChange(index, e.target.value)}

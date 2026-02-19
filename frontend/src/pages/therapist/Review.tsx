@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Star, TrendingUp, Filter, Search, Calendar, Clock, MessageCircle } from 'lucide-react';
+import { Star, TrendingUp, Search, Calendar, MessageCircle } from 'lucide-react';
 import { therapistProfileService } from '@/services/therapist/profileService';
 
 interface Review {

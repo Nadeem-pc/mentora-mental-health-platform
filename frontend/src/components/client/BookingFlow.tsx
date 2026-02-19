@@ -18,7 +18,7 @@ const BookingFlow: React.FC<BookingFlowProps> = ({
   onCancel,
 }) => {
   const [step, setStep] = useState<BookingStep>('confirmation');
-  const [selectedTherapistId, setSelectedTherapistId] = useState<string | null>(null);
+  const [selectedTherapistId] = useState<string | null>(null);
   const [preferences, setPreferences] = useState<BookingPreferences>({
     budget: null,
     availability: [],

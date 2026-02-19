@@ -37,11 +37,18 @@ const ForgotPassword: React.FC = () => {
                 setIsLoading(false);
                 toast.error(response?.error || 'Sending reset link failed')
             }
-        } catch (error) {
+        } catch (error: unknown) {
             setTimeout(() => {
                 setIsLoading(false);
-                if (error.response?.data?.message) {
-                    toast.error(error.response.data.message);
+                const message =
+                  typeof error === 'object' &&
+                  error !== null &&
+                  'response' in error &&
+                  typeof (error as { response?: { data?: { message?: unknown } } }).response?.data?.message === 'string'
+                    ? ((error as { response?: { data?: { message?: string } } }).response?.data?.message as string)
+                    : null;
+                if (message) {
+                    toast.error(message);
                 } else {
                     toast.error("Something went wrong");
                 }

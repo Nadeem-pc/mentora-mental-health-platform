@@ -22,6 +22,20 @@ interface TherapistProfile {
   rejectionReason?: string | null;
 }
 
+type ProfileUpdatePayload = {
+  phone: string;
+  gender: string;
+  experience: string;
+  fee: string;
+  qualification: string;
+  specializations: string[];
+  languages: string[];
+  about: string;
+  profileImg?: string;
+  resume?: string;
+  certifications?: string[];
+};
+
 const TherapistProfilePage: React.FC = () => {
   const [profile, setProfile] = useState<TherapistProfile | null>(null);
   const [profileImgUrl, setProfileImgUrl] = useState<string>('');
@@ -201,7 +215,7 @@ const TherapistProfilePage: React.FC = () => {
     setUploadProgress('Preparing update...');
 
     try {
-      const updatePayload: unknown = { ...formData };
+      const updatePayload: ProfileUpdatePayload = { ...formData };
 
       if (profileImgFile) {
         setUploadProgress('Uploading profile image...');

@@ -66,9 +66,16 @@ const AuthForm = () => {
                     localStorage.setItem("accessToken", response.token);
                     setUser(response.user);
                 }
-            } catch (error) {
+            } catch (error: unknown) {
                 console.error("Google login error:", error);
-                toast.error(error?.response?.data?.message || "Google login failed");
+                const message =
+                  typeof error === 'object' &&
+                  error !== null &&
+                  'response' in error &&
+                  typeof (error as { response?: { data?: { message?: unknown } } }).response?.data?.message === 'string'
+                    ? ((error as { response?: { data?: { message?: string } } }).response?.data?.message as string)
+                    : "Google login failed";
+                toast.error(message);
             }
         },
         onError: (error) => {
@@ -98,9 +105,15 @@ const AuthForm = () => {
                     }
                 }
             }
-        } catch (error) {
+        } catch (error: unknown) {
             console.log(error);
-            const errorMessage = error?.response?.data?.message;
+            const errorMessage =
+              typeof error === 'object' &&
+              error !== null &&
+              'response' in error &&
+              typeof (error as { response?: { data?: { message?: unknown } } }).response?.data?.message === 'string'
+                ? ((error as { response?: { data?: { message?: string } } }).response?.data?.message as string)
+                : null;
             if (errorMessage) {
                toast.error(errorMessage);
             }

@@ -25,12 +25,27 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
     setIsLoggingOut(true);
     try {
       const response = await logout();
-      toast.success(response?.message);
+      const message =
+        typeof response === 'object' &&
+        response !== null &&
+        'message' in response &&
+        typeof (response as { message?: unknown }).message === 'string'
+          ? (response as { message: string }).message
+          : 'Logged out successfully';
+      toast.success(message);
       setIsLogoutModalOpen(false);
       navigate("/auth/form", { replace: true });
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("Error during logout:", error);
-      const errorMessage = error.response?.data?.message || "Failed to logout";
+      const errorMessage =
+        typeof error === 'object' &&
+        error !== null &&
+        'response' in error &&
+        typeof (error as { response?: { data?: { message?: unknown } } }).response?.data?.message === 'string'
+          ? ((error as { response?: { data?: { message?: string } } }).response?.data?.message as string)
+          : error instanceof Error
+            ? error.message
+            : 'Failed to logout';
       toast.error(errorMessage);
       setIsLoggingOut(false);
     }

@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
-import { chatService, Conversation } from "@/services/shared/chatService";
+import { chatService } from "@/services/shared/chatService";
+import type { TherapistConversation } from "@/services/shared/chatService";
 import { MessageCircle, Loader2 } from "lucide-react";
-import { formatDistanceToNow } from "date-fns";
 
 interface ConversationListProps {
-    onSelectConversation: (conversation: Conversation) => void;
+    onSelectConversation: (conversation: TherapistConversation) => void;
     selectedConversationId?: string;
 }
 
@@ -12,15 +12,31 @@ export function ConversationList({
     onSelectConversation,
     selectedConversationId
 }: ConversationListProps) {
-    const [conversations, setConversations] = useState<Conversation[]>([]);
+    const [conversations, setConversations] = useState<TherapistConversation[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+
+    const formatTimeAgo = (timestamp: string) => {
+        const date = new Date(timestamp);
+        const now = new Date();
+        const diffMs = now.getTime() - date.getTime();
+        const diffMins = Math.floor(diffMs / 60000);
+        const diffHours = Math.floor(diffMs / 3600000);
+        const diffDays = Math.floor(diffMs / 86400000);
+
+        if (diffMins < 1) return "just now";
+        if (diffMins < 60) return `${diffMins}m ago`;
+        if (diffHours < 24) return `${diffHours}h ago`;
+        if (diffDays < 7) return `${diffDays}d ago`;
+
+        return date.toLocaleDateString();
+    };
 
     useEffect(() => {
         const loadConversations = async () => {
             try {
                 setLoading(true);
-                const data = await chatService.getConversations();
+                const data = await chatService.getTherapistConversations();
                 setConversations(data);
                 setError(null);
             } catch (err) {
@@ -65,19 +81,14 @@ export function ConversationList({
     return (
         <div className="space-y-2 overflow-y-auto">
             {conversations.map((conversation) => {
-                const otherUser = conversation.clientId._id === localStorage.getItem("userId")
-                    ? conversation.therapistId
-                    : conversation.clientId;
-                const unreadCount = conversation.clientId._id === localStorage.getItem("userId")
-                    ? conversation.clientUnreadCount
-                    : conversation.therapistUnreadCount;
+                const unreadCount = conversation.unreadCount ?? 0;
 
                 return (
                     <button
-                        key={conversation._id}
+                        key={conversation.clientId}
                         onClick={() => onSelectConversation(conversation)}
                         className={`w-full p-3 text-left rounded-lg transition-colors ${
-                            selectedConversationId === conversation._id
+                            selectedConversationId === conversation.clientId
                                 ? "bg-blue-100 border-l-4 border-blue-500"
                                 : "hover:bg-gray-100"
                         }`}
@@ -85,7 +96,7 @@ export function ConversationList({
                         <div className="flex items-start justify-between">
                             <div className="flex-1 min-w-0">
                                 <h3 className="font-semibold text-gray-900 truncate">
-                                    {otherUser.firstName} {otherUser.lastName}
+                                    {conversation.clientName}
                                 </h3>
                                 <p className="text-sm text-gray-600 truncate">
                                     {conversation.lastMessage || "No messages yet"}
@@ -94,9 +105,7 @@ export function ConversationList({
                             <div className="ml-2 flex flex-col items-end">
                                 {conversation.lastMessageAt && (
                                     <span className="text-xs text-gray-500">
-                                        {formatDistanceToNow(new Date(conversation.lastMessageAt), {
-                                            addSuffix: true
-                                        })}
+                                        {formatTimeAgo(conversation.lastMessageAt)}
                                     </span>
                                 )}
                                 {unreadCount > 0 && (

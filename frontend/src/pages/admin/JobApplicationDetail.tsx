@@ -94,7 +94,16 @@ const ApplicationDetailPage: React.FC = () => {
         }
       } catch (err: unknown) {
         console.error('Error fetching application details:', err);
-        setError(err.response?.data?.message || err.message || 'Failed to load application details');
+        const message =
+          typeof err === 'object' &&
+          err !== null &&
+          'response' in err &&
+          typeof (err as { response?: { data?: { message?: unknown } } }).response?.data?.message === 'string'
+            ? ((err as { response?: { data?: { message?: string } } }).response?.data?.message as string)
+            : err instanceof Error
+              ? err.message
+              : 'Failed to load application details';
+        setError(message);
       } finally {
         setLoading(false);
       }
@@ -179,9 +188,25 @@ const ApplicationDetailPage: React.FC = () => {
       console.error('Error approving application:', error);
       
       // Handle conflict error (already processed)
-      if (error.response?.status === 409) {
+      const status =
+        typeof error === 'object' &&
+        error !== null &&
+        'response' in error &&
+        typeof (error as { response?: { status?: unknown } }).response?.status === 'number'
+          ? ((error as { response?: { status?: number } }).response?.status as number)
+          : null;
+
+      const serverMessage =
+        typeof error === 'object' &&
+        error !== null &&
+        'response' in error &&
+        typeof (error as { response?: { data?: { message?: unknown } } }).response?.data?.message === 'string'
+          ? ((error as { response?: { data?: { message?: string } } }).response?.data?.message as string)
+          : null;
+
+      if (status === 409) {
         setShowApproveModal(false);
-        toast.error(error.response?.data?.message || 'This application has already been processed.');
+        toast.error(serverMessage || 'This application has already been processed.');
         setTimeout(() => {
           window.location.reload();
         }, 1500);
@@ -235,11 +260,27 @@ const ApplicationDetailPage: React.FC = () => {
       console.error('Error rejecting application:', error);
       
       // Handle conflict error (already processed)
-      if (error.response?.status === 409) {
+      const status =
+        typeof error === 'object' &&
+        error !== null &&
+        'response' in error &&
+        typeof (error as { response?: { status?: unknown } }).response?.status === 'number'
+          ? ((error as { response?: { status?: number } }).response?.status as number)
+          : null;
+
+      const serverMessage =
+        typeof error === 'object' &&
+        error !== null &&
+        'response' in error &&
+        typeof (error as { response?: { data?: { message?: unknown } } }).response?.data?.message === 'string'
+          ? ((error as { response?: { data?: { message?: string } } }).response?.data?.message as string)
+          : null;
+
+      if (status === 409) {
         setShowRejectModal(false);
         setRejectReason('');
         setRejectReasonError('');
-        toast.error(error.response?.data?.message || 'This application has already been processed.');
+        toast.error(serverMessage || 'This application has already been processed.');
         setTimeout(() => {
           window.location.reload();
         }, 1500);

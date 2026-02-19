@@ -148,17 +148,22 @@ const TherapistDashboard: React.FC = () => {
         });
 
         const todays = appointments
-          .filter((apt) => apt.sessionDate === todayIso)
+          .filter((apt: { sessionDate: string }) => apt.sessionDate === todayIso)
           .map(mapAppointment);
 
         const upcoming = appointments
-          .filter((apt) => apt.sessionDate > todayIso)
-          .sort((a, b) => {
+          .filter((apt: { sessionDate: string }) => apt.sessionDate > todayIso)
+          .sort(
+            (
+              a: { sessionDate: string; sessionTime: string },
+              b: { sessionDate: string; sessionTime: string }
+            ) => {
             if (a.sessionDate === b.sessionDate) {
               return a.sessionTime.localeCompare(b.sessionTime);
             }
             return a.sessionDate.localeCompare(b.sessionDate);
-          })
+          }
+          )
           .slice(0, 3)
           .map(mapAppointment);
 
@@ -176,7 +181,7 @@ const TherapistDashboard: React.FC = () => {
         const totalRevenue = walletData?.statistics?.totalRevenue ?? 0;
         const thisMonthRevenue = walletData?.statistics?.thisMonthRevenue ?? 0;
 
-        const uniqueClients = new Set(appointments.map((apt) => apt.clientName || ''));
+        const uniqueClients = new Set(appointments.map((apt: { clientName?: string }) => apt.clientName || ''));
         const totalClients = uniqueClients.has('') ? uniqueClients.size - 1 : uniqueClients.size;
 
         setStats([

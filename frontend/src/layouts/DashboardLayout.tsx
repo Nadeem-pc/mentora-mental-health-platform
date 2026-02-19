@@ -10,6 +10,8 @@ const DashboardLayout: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
+  const therapistConfig = useTherapistSidebarConfig();
+
   const getRoleFromPath = (path: string) => {
     if (path.startsWith('/admin')) return 'admin';
     if (path.startsWith('/therapist')) return 'therapist';
@@ -17,12 +19,7 @@ const DashboardLayout: React.FC = () => {
   };
 
   const role = getRoleFromPath(location.pathname);
-  let currentConfig;
-  if (role === "admin") {
-    currentConfig = adminSidebarConfig;
-  } else if (role === "therapist") {
-    currentConfig = useTherapistSidebarConfig(); 
-  }
+  const currentConfig = role === "therapist" ? therapistConfig : adminSidebarConfig;
 
   const sidebarMargin = sidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64';
 

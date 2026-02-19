@@ -9,7 +9,7 @@ const ClientManagement: React.FC = () => {
 
   useEffect(() => {
     const fetchUserStats = async () => {
-      const response = await getUsers({ page: 1, limit: 1 }); 
+      const response = await getUsers('', 1, 1);
       if (response) {
         setTotalUsers(response.total || 0);
         setActiveUsers(response.activeCount || 0);

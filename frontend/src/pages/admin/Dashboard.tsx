@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { Users, UserCheck, Calendar, DollarSign, TrendingUp, Star } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -52,7 +52,7 @@ const AdminDashboard = () => {
     []
   );
 
-  const issueData = useMemo(
+  useMemo(
     () => (dashboard?.issueData ?? []).map((d, idx) => ({ ...d, color: issueColors[idx % issueColors.length] })),
     [dashboard?.issueData, issueColors]
   );
