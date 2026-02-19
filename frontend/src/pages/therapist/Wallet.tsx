@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { TrendingUp, Wallet, ArrowUpRight, ArrowDownRight, IndianRupee, Loader2 } from 'lucide-react';
+import { TrendingUp, Wallet, ArrowUpRight, ArrowDownRight, IndianRupee, Loader2, type LucideIcon } from 'lucide-react';
 import { walletService } from '@/services/shared/walletService';
 
 interface Transaction {
@@ -17,6 +17,14 @@ interface Statistics {
   thisMonthRevenue: number;
   platformFee: number;
   balance: number;
+}
+
+interface StatCardProps {
+  icon: LucideIcon;
+  title: string;
+  amount: number;
+  bgColor: string;
+  textColor: string;
 }
 
 const TherapistEarnings = () => {
@@ -69,7 +77,14 @@ const TherapistEarnings = () => {
         totalItems: data.pagination.totalItems
       }));
     } catch (err: unknown) {
-      setError(err.response?.data?.message || 'Failed to fetch wallet data');
+      const message =
+        typeof err === 'object' &&
+        err !== null &&
+        'response' in err &&
+        typeof (err as { response?: { data?: { message?: unknown } } }).response?.data?.message === 'string'
+          ? ((err as { response?: { data?: { message?: string } } }).response?.data?.message as string)
+          : 'Failed to fetch wallet data';
+      setError(message);
       console.error('Error fetching wallet:', err);
     } finally {
       setLoading(false);
@@ -98,7 +113,7 @@ const TherapistEarnings = () => {
     fetchWalletData({ page: targetPage });
   };
 
-  const StatCard = ({ icon: Icon, title, amount, bgColor, textColor }: unknown) => (
+  const StatCard = ({ icon: Icon, title, amount, bgColor, textColor }: StatCardProps) => (
     <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
       <div className="flex items-center justify-between">
         <div>

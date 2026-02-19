@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Plus, Video, Phone, Clock, IndianRupee, Loader2, Save, X, Calendar, Edit, CalendarX } from 'lucide-react';
 import { slotService } from '@/services/therapist/slotService';
 import { toast } from 'sonner';
@@ -114,7 +114,7 @@ export default function SlotManagement() {
   const updateSlot = (dayIndex: number, slotIndex: number, field: string, value: unknown) => {
     const updated = [...editingSchedule];
     
-    if (field === 'startTime' && value) {
+    if (field === 'startTime' && typeof value === 'string' && value) {
       const currentDaySlots = updated[dayIndex].slots;
       const newStartMinutes = timeToMinutes(value);
       const newEndMinutes = newStartMinutes + FIXED_DURATION;
@@ -144,7 +144,7 @@ export default function SlotManagement() {
       }
     }
 
-    if (field === 'price' && value < 0) {
+    if (field === 'price' && typeof value === 'number' && value < 0) {
       toast.error('Price cannot be negative');
       return;
     }
@@ -274,7 +274,14 @@ export default function SlotManagement() {
       toast.success(weeklySchedule ? 'Weekly schedule updated successfully!' : 'Weekly schedule created successfully!');
     } catch (error: unknown) {
       console.error('Error saving schedule:', error);
-      toast.error(error.response?.data?.message || 'Failed to save schedule');
+      const message =
+        typeof error === 'object' &&
+        error !== null &&
+        'response' in error &&
+        typeof (error as { response?: { data?: { message?: unknown } } }).response?.data?.message === 'string'
+          ? (error as { response?: { data?: { message?: string } } }).response?.data?.message
+          : 'Failed to save schedule';
+      toast.error(message);
     }
   };
 

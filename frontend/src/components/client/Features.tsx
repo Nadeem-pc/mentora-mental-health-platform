@@ -1,6 +1,5 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { useInView } from 'framer-motion';
 import { Users, Lock, Calendar, MessageCircle, Target, Sparkles } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
@@ -8,7 +7,9 @@ interface Feature {
   Icon: LucideIcon;
   title: string;
   description: string;
-  gradient: string;
+  bgColor: string;
+  bgPattern: string;
+  textColor: string;
 }
 
 const features: Feature[] = [
@@ -16,67 +17,187 @@ const features: Feature[] = [
     Icon: Users,
     title: "Individual Therapy",
     description: "One-on-one sessions with licensed therapists tailored to your specific needs and goals.",
-    gradient: "from-blue-500 to-cyan-500"
+    bgColor: "bg-blue-50 dark:bg-blue-950/20",
+    bgPattern: "blue",
+    textColor: "text-blue-600 dark:text-blue-400"
   },
   {
     Icon: Lock,
     title: "Complete Privacy",
     description: "End-to-end encryption and strict confidentiality ensure your conversations remain private.",
-    gradient: "from-teal-500 to-cyan-500"
+    bgColor: "bg-teal-50 dark:bg-teal-950/20",
+    bgPattern: "teal",
+    textColor: "text-teal-600 dark:text-teal-400"
   },
   {
     Icon: Calendar,
     title: "Flexible Scheduling",
     description: "Book sessions that fit your schedule with our easy-to-use appointment system.",
-    gradient: "from-green-500 to-emerald-500"
+    bgColor: "bg-green-50 dark:bg-green-950/20",
+    bgPattern: "green",
+    textColor: "text-green-600 dark:text-green-400"
   },
   {
     Icon: MessageCircle,
     title: "Multiple Formats",
     description: "Choose from video calls, phone sessions, or secure messaging based on your comfort level.",
-    gradient: "from-orange-500 to-red-500"
+    bgColor: "bg-purple-50 dark:bg-purple-950/20",
+    bgPattern: "purple",
+    textColor: "text-purple-600 dark:text-purple-400"
   },
   {
     Icon: Target,
     title: "Specialized Care",
     description: "Access therapists who specialize in anxiety, depression, trauma, relationships, and more.",
-    gradient: "from-teal-500 to-cyan-500"
+    bgColor: "bg-indigo-50 dark:bg-indigo-950/20",
+    bgPattern: "indigo",
+    textColor: "text-indigo-600 dark:text-indigo-400"
   },
   {
     Icon: Sparkles,
     title: "AI Assistant",
     description: "Get personalized therapist recommendations powered by AI based on your unique needs and preferences.",
-    gradient: "from-teal-500 to-green-500"
+    bgColor: "bg-cyan-50 dark:bg-cyan-950/20",
+    bgPattern: "cyan",
+    textColor: "text-cyan-600 dark:text-cyan-400"
   }
 ];
 
 const Features: React.FC = () => {
-  const ref = React.useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-100px" });
+  // Duplicate arrays for seamless infinite scroll - all 6 cards in one row
+  const featuresDuplicated = [...features, ...features];
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.15,
-        delayChildren: 0.2
-      }
-    }
+  const getPatternColor = (pattern: string) => {
+    const colors: Record<string, string> = {
+      blue: "rgba(59, 130, 246, 0.15)",
+      teal: "rgba(20, 184, 166, 0.15)",
+      green: "rgba(34, 197, 94, 0.15)",
+      purple: "rgba(168, 85, 247, 0.15)",
+      indigo: "rgba(99, 102, 241, 0.15)",
+      cyan: "rgba(6, 182, 212, 0.15)"
+    };
+    return colors[pattern] || colors.blue;
   };
 
-  const cardVariants = {
-    hidden: { opacity: 0, y: 50, scale: 0.9 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      scale: 1,
-      transition: {
-        duration: 0.6,
-        ease: [0.6, -0.05, 0.01, 0.99] as const
-      }
-    }
-  };
+  const renderCard = (feature: Feature, index: number) => (
+    <motion.div
+      key={index}
+      className={`group relative ${feature.bgColor} backdrop-blur-sm rounded-3xl w-[320px] h-[360px] flex flex-col overflow-hidden flex-shrink-0 border border-white/20 dark:border-gray-700/30`}
+      style={{
+        boxShadow: '0 10px 30px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.05)'
+      }}
+      whileHover={{ 
+        scale: 1.03,
+        y: -8,
+        boxShadow: '0 20px 40px rgba(0, 0, 0, 0.15), 0 5px 10px rgba(0, 0, 0, 0.08)'
+      }}
+      transition={{ 
+        type: "spring", 
+        stiffness: 300, 
+        damping: 20 
+      }}
+    >
+      {/* Abstract Background Pattern */}
+      <div 
+        className="absolute inset-0 opacity-40 dark:opacity-20 transition-opacity duration-300 group-hover:opacity-60"
+        style={{
+          backgroundImage: `
+            radial-gradient(circle at 20% 30%, ${getPatternColor(feature.bgPattern)} 0%, transparent 50%),
+            radial-gradient(circle at 80% 70%, ${getPatternColor(feature.bgPattern)} 0%, transparent 50%),
+            radial-gradient(circle at 50% 50%, ${getPatternColor(feature.bgPattern)} 0%, transparent 70%)
+          `
+        }}
+      />
+
+      {/* Gradient border glow on hover */}
+      <motion.div 
+        className={`absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500`}
+        style={{
+          background: `linear-gradient(135deg, ${getPatternColor(feature.bgPattern)}, transparent, ${getPatternColor(feature.bgPattern)})`,
+          padding: '2px',
+          WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+          WebkitMaskComposite: 'xor',
+          maskComposite: 'exclude'
+        }}
+      />
+
+      {/* Shine effect on hover */}
+      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700">
+        <div 
+          className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent"
+          style={{
+            animation: 'shine 1.5s ease-in-out infinite',
+            transform: 'translateX(-100%)'
+          }}
+        />
+      </div>
+
+      {/* Content Container with proper padding */}
+      <div className="relative flex flex-col h-full pt-8 px-8 pb-8 z-10">
+        {/* Top section: Icon and Title */}
+        <div className="flex-shrink-0">
+          {/* Icon with enhanced effects */}
+          <motion.div 
+            className="mb-6"
+            whileHover={{ scale: 1.1, rotate: 5 }}
+            transition={{ type: "spring", stiffness: 400, damping: 10 }}
+          >
+            <div className={`relative w-16 h-16 rounded-2xl bg-gradient-to-br ${
+              feature.bgPattern === 'blue' ? 'from-blue-500 via-blue-600 to-blue-700' : 
+              feature.bgPattern === 'teal' ? 'from-teal-500 via-teal-600 to-teal-700' : 
+              feature.bgPattern === 'green' ? 'from-green-500 via-green-600 to-green-700' : 
+              feature.bgPattern === 'purple' ? 'from-purple-500 via-purple-600 to-purple-700' : 
+              feature.bgPattern === 'indigo' ? 'from-indigo-500 via-indigo-600 to-indigo-700' : 
+              'from-cyan-500 via-cyan-600 to-cyan-700'
+            } flex items-center justify-center shadow-xl group-hover:shadow-2xl transition-all duration-300`}>
+              {/* Icon glow */}
+              <div className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${
+                feature.bgPattern === 'blue' ? 'from-blue-400 to-blue-600' : 
+                feature.bgPattern === 'teal' ? 'from-teal-400 to-teal-600' : 
+                feature.bgPattern === 'green' ? 'from-green-400 to-green-600' : 
+                feature.bgPattern === 'purple' ? 'from-purple-400 to-purple-600' : 
+                feature.bgPattern === 'indigo' ? 'from-indigo-400 to-indigo-600' : 
+                'from-cyan-400 to-cyan-600'
+              } opacity-0 group-hover:opacity-50 blur-xl transition-opacity duration-300`} />
+              
+              <feature.Icon className="w-8 h-8 text-white relative z-10 group-hover:scale-110 transition-transform duration-300" strokeWidth={2.5} />
+            </div>
+          </motion.div>
+
+          {/* Title with hover effect */}
+          <h3 className={`text-xl font-bold mb-4 leading-tight transition-colors duration-300 ${
+            feature.textColor
+          } group-hover:scale-105 transform transition-transform duration-300`}>
+            {feature.title}
+          </h3>
+        </div>
+
+        {/* Description - properly spaced from bottom */}
+        <div className="flex-1 flex flex-col justify-start overflow-hidden">
+          <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed line-clamp-4 group-hover:text-gray-900 dark:group-hover:text-gray-100 transition-colors duration-300" style={{ 
+            display: '-webkit-box',
+            WebkitLineClamp: 4,
+            WebkitBoxOrient: 'vertical',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            wordBreak: 'break-word'
+          }}>
+            {feature.description}
+          </p>
+        </div>
+
+        {/* Decorative corner accent */}
+        <div className={`absolute bottom-0 right-0 w-24 h-24 opacity-0 group-hover:opacity-20 transition-opacity duration-500 ${
+          feature.bgPattern === 'blue' ? 'bg-blue-500' : 
+          feature.bgPattern === 'teal' ? 'bg-teal-500' : 
+          feature.bgPattern === 'green' ? 'bg-green-500' : 
+          feature.bgPattern === 'purple' ? 'bg-purple-500' : 
+          feature.bgPattern === 'indigo' ? 'bg-indigo-500' : 
+          'bg-cyan-500'
+        } rounded-tl-full blur-2xl`} />
+      </div>
+    </motion.div>
+  );
 
   return (
     <section id="services" className="relative py-24 bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-800 overflow-hidden">
@@ -128,83 +249,26 @@ const Features: React.FC = () => {
             on your journey to better mental wellbeing.
           </p>
         </motion.div>
+      </div>
 
-        <motion.div 
-          ref={ref}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-          variants={containerVariants}
-          initial="hidden"
-          animate={isInView ? "visible" : "hidden"}
+      {/* Single Row Carousel - Right to Left - Full Width */}
+      <div className="overflow-hidden relative w-screen -ml-[50vw] left-1/2 py-8">
+        <motion.div
+          className="flex will-change-transform"
+          style={{ gap: '32px', paddingLeft: '32px', paddingTop: '8px', paddingBottom: '8px' }}
+          animate={{
+            x: [0, -(320 + 32) * features.length]
+          }}
+          transition={{
+            x: {
+              repeat: Infinity,
+              repeatType: "loop",
+              duration: 40,
+              ease: "linear"
+            }
+          }}
         >
-          {features.map((feature, index) => (
-            <motion.div
-              key={index}
-              className="group relative bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-200 dark:border-gray-700 hover:border-transparent overflow-hidden"
-              variants={cardVariants}
-              whileHover={{ y: -8, transition: { duration: 0.3 } }}
-            >
-              {/* Gradient Background on Hover */}
-              <motion.div 
-                className={`absolute inset-0 bg-gradient-to-br ${feature.gradient} rounded-2xl`}
-                initial={{ opacity: 0 }}
-                whileHover={{ opacity: 0.1 }}
-                transition={{ duration: 0.3 }}
-              />
-              
-              {/* Animated Glow Effect on Hover */}
-              <motion.div 
-                className={`absolute -inset-1 bg-gradient-to-r ${feature.gradient} rounded-2xl blur-xl`}
-                initial={{ opacity: 0 }}
-                whileHover={{ opacity: 0.2 }}
-                transition={{ duration: 0.5 }}
-              />
-              
-              {/* Corner Accent Decorations */}
-              <motion.div 
-                className={`absolute top-0 left-0 w-20 h-20 bg-gradient-to-br ${feature.gradient} rounded-br-3xl`}
-                initial={{ opacity: 0 }}
-                whileHover={{ opacity: 0.1 }}
-                transition={{ duration: 0.3 }}
-              />
-              <motion.div 
-                className={`absolute bottom-0 right-0 w-20 h-20 bg-gradient-to-tl ${feature.gradient} rounded-tl-3xl`}
-                initial={{ opacity: 0 }}
-                whileHover={{ opacity: 0.1 }}
-                transition={{ duration: 0.3 }}
-              />
-              
-              {/* Icon Container */}
-              <motion.div 
-                className={`relative mb-6 w-16 h-16 rounded-xl bg-gradient-to-br ${feature.gradient} flex items-center justify-center shadow-lg`}
-                whileHover={{ scale: 1.1, rotate: 6 }}
-                transition={{ duration: 0.3 }}
-              >
-                <feature.Icon className="w-8 h-8 text-white relative z-10" strokeWidth={2.5} />
-                <div className={`absolute inset-0 bg-gradient-to-br ${feature.gradient} opacity-50 blur-lg`}></div>
-                <motion.div 
-                  className={`absolute inset-0 bg-gradient-to-br ${feature.gradient} rounded-xl blur-md`}
-                  initial={{ opacity: 0 }}
-                  whileHover={{ opacity: 0.3 }}
-                  transition={{ duration: 0.3 }}
-                />
-              </motion.div>
-              
-              <h3 className="relative text-xl font-bold text-gray-900 dark:text-white mb-3 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-blue-600 group-hover:to-teal-600 transition-all duration-300">
-                {feature.title}
-              </h3>
-              <p className="relative text-gray-600 dark:text-gray-300 leading-relaxed">
-                {feature.description}
-              </p>
-
-              {/* Shine Effect on Hover */}
-              <motion.div 
-                className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent"
-                initial={{ x: "-100%" }}
-                whileHover={{ x: "100%" }}
-                transition={{ duration: 1, ease: "easeInOut" }}
-              />
-            </motion.div>
-          ))}
+          {featuresDuplicated.map((feature, index) => renderCard(feature, index))}
         </motion.div>
       </div>
     </section>

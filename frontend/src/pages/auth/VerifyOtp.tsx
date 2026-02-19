@@ -1,7 +1,7 @@
-import OtpVerification from '@/components/auth/OtpVerification'
+import OtpForm from '@/components/auth/OtpForm'
 
 const VerifyOtp = () => {
-  return <OtpVerification/>
+  return <OtpForm />
 }
 
 export default VerifyOtp

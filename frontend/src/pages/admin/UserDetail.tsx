@@ -10,10 +10,32 @@ import type { User } from '@/types/dtos/user.dto';
 const UserDetailPage = () => {
   const { userId } = useParams<{ userId: string }>();
   
-  const [user, setUser] = useState<User | null>(null);
+  type UserWithDetails = User & {
+    phone?: string | null;
+    dob?: string | null;
+    gender?: string | null;
+    createdAt?: string | null;
+  };
+
+  const [user, setUser] = useState<UserWithDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedSession, setSelectedSession] = useState(null);
+  interface SessionEntry {
+    id: string;
+    therapistPhoto: string;
+    therapistName: string;
+    dateTime: string;
+    duration: string;
+    reason?: string;
+    issue: string;
+    mode: string;
+    fee: string;
+    rating: number;
+    userFeedback: string;
+    doctorNotes: string;
+  }
+
+  const [selectedSession, setSelectedSession] = useState<SessionEntry | null>(null);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [signedImageUrl, setSignedImageUrl] = useState<string>("");
 
@@ -28,7 +50,7 @@ const UserDetailPage = () => {
       try {
         setLoading(true);
         const userData = await getUserDetails(userId);
-        setUser(userData);
+        setUser(userData as UserWithDetails);
         
         if (userData.profileImg) {
           try {
@@ -38,9 +60,10 @@ const UserDetailPage = () => {
             console.error('Failed to get signed URL:', error);
           }
         }
-      } catch (err) {
+      } catch (err: unknown) {
         console.error('Error fetching user details:', err);
-        setError(err.message || 'Failed to load user details');
+        const message = err instanceof Error ? err.message : 'Failed to load user details';
+        setError(message);
       } finally {
         setLoading(false);
       }
@@ -80,7 +103,17 @@ const UserDetailPage = () => {
     });
   };
 
-  const ProfilePicture = ({ firstName, lastName, size = 'w-20 h-20', textSize = 'text-xl' }) => {
+  const ProfilePicture = ({
+    firstName,
+    lastName,
+    size = 'w-20 h-20',
+    textSize = 'text-xl',
+  }: {
+    firstName: string;
+    lastName: string;
+    size?: string;
+    textSize?: string;
+  }) => {
     const initials = getUserInitials(firstName, lastName);
 
     if (!signedImageUrl) {
@@ -100,7 +133,19 @@ const UserDetailPage = () => {
     );
   };
 
-  const SmallProfilePicture = ({ src, firstName, lastName, size = 'w-10 h-10', textSize = 'text-sm' }) => {
+  const SmallProfilePicture = ({
+    src,
+    firstName,
+    lastName,
+    size = 'w-10 h-10',
+    textSize = 'text-sm',
+  }: {
+    src?: string;
+    firstName: string;
+    lastName: string;
+    size?: string;
+    textSize?: string;
+  }) => {
     const [imageError, setImageError] = useState(false);
     const initials = getUserInitials(firstName, lastName);
 
@@ -122,8 +167,8 @@ const UserDetailPage = () => {
     );
   };
 
-  const sessionHistory = [];
-  const upcomingSessions = [];
+  const sessionHistory: SessionEntry[] = [];
+  const upcomingSessions: SessionEntry[] = [];
 
   const getModeIcon = (mode: string) => {
     switch (mode) {
@@ -152,14 +197,9 @@ const UserDetailPage = () => {
     }
   };
 
-  const openSheet = (session: unknown) => {
+  const openSheet = (session: SessionEntry) => {
     setSelectedSession(session);
     setIsSheetOpen(true);
-  };
-
-  const closeSheet = () => {
-    setSelectedSession(null);
-    setIsSheetOpen(false);
   };
 
   const EmptyUpcomingSessions = () => (
@@ -335,7 +375,7 @@ const UserDetailPage = () => {
             ) : (
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Upcoming Sessions</h3>
-                {upcomingSessions.map((session: unknown) => (
+                {upcomingSessions.map((session) => (
                   <div key={session.id} className="flex items-center justify-between p-4 border rounded-lg">
                     <div className="flex items-center gap-3">
                       <SmallProfilePicture 
@@ -344,7 +384,7 @@ const UserDetailPage = () => {
                         lastName={session.therapistName.split(' ')[2]}
                       />
                       <div>
-                        <h4 className="font-medium text-gray-900">{session.reason}</h4>
+                        <h4 className="font-medium text-gray-900">{session.reason || session.issue}</h4>
                         <p className="text-sm text-gray-500">{session.therapistName}</p>
                         <div className="flex items-center gap-2 mt-1">
                           <Calendar className="w-3 h-3 text-gray-400" />
@@ -384,7 +424,7 @@ const UserDetailPage = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {sessionHistory.map((session: unknown) => (
+                  {sessionHistory.map((session) => (
                     <tr key={session.id} className="border-b border-gray-100">
                       <td className="py-4 px-2">
                         <div className="flex items-center gap-2">
@@ -429,7 +469,15 @@ const UserDetailPage = () => {
           )}
         </div>
 
-        <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+        <Sheet
+          open={isSheetOpen}
+          onOpenChange={(open) => {
+            setIsSheetOpen(open);
+            if (!open) {
+              setSelectedSession(null);
+            }
+          }}
+        >
           <SheetContent className="w-[400px] sm:w-[540px] p-0 bg-white">
             <div className="p-6 border-b border-gray-300">
               <SheetHeader>
