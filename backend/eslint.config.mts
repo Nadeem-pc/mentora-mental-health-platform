@@ -5,7 +5,28 @@ import pluginReact from "eslint-plugin-react";
 import { defineConfig } from "eslint/config";
 
 export default defineConfig([
-  { files: ["**/*.{js,mjs,cjs,ts,mts,cts,jsx,tsx}"], plugins: { js }, extends: ["js/recommended"], languageOptions: { globals: globals.browser } },
+  {
+    files: ["**/*.{js,mjs,cjs,ts,mts,cts,jsx,tsx}"],
+    plugins: { js },
+    extends: ["js/recommended"],
+    languageOptions: {
+      globals: globals.browser,
+    },
+  },
+
+  {
+    files: ["**/*.{ts,mts,cts,tsx}"],
+    rules: {
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        {
+          argsIgnorePattern: "^_",
+          varsIgnorePattern: "^_",
+        },
+      ],
+    },
+  },
+
   tseslint.configs.recommended,
   pluginReact.configs.flat.recommended,
 ]);
