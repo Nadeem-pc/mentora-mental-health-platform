@@ -1,8 +1,6 @@
 import mongoose from 'mongoose';
 import { env } from './env.config';
-import dotenv from 'dotenv';
 import logger from './logger.config';
-dotenv.config();
 
 const connectDB = async () => {
     try {
