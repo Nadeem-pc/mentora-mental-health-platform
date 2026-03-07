@@ -1,0 +1,14 @@
+export const THERAPIST_MATCHING_CONSTANT = {
+  MIN_MATCH_SCORE: 0.40,
+  HIGH_QUALITY_THRESHOLD: 0.50,
+  MIN_HIGH_QUALITY_COUNT: 3,
+  MAX_RESULTS: 10,
+
+  MATCH_SCORES: {
+    DIRECT_MATCH: 1.0,      
+    PARTIAL_MATCH: 0.8,     
+    RELATED_MATCH: 0.5,     
+  },
+} as const;
+
+export type TherapistMatchingConfig = typeof THERAPIST_MATCHING_CONSTANT;
