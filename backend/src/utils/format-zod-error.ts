@@ -8,15 +8,21 @@ interface FormattedError {
 const formatZodErrors = (error: ZodError): FormattedError => {
   const formattedErrors: FormattedError = {};
 
-  error.errors.forEach((err) => {
-    const field = err.path[0];
-    const message = err.message;
-    if (err.code === ZodIssueCode.unrecognized_keys) {
-      err.keys.forEach((key) => {
+  error.issues.forEach((issue) => {
+    const field = issue.path[0];
+    const message = issue.message;
+
+    if (issue.code === ZodIssueCode.unrecognized_keys) {
+      const keys = (issue as unknown as { keys?: string[] }).keys ?? [];
+      keys.forEach((key: string) => {
         formattedErrors[key] = HttpResponse.UNEXPECTED_KEY_FOUND;
       });
-    } else {
+      return;
+    }
+
+    if (typeof field === "string") {
       formattedErrors[field] = message;
+      return;
     }
   });
 
