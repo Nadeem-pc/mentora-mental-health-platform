@@ -9,5 +9,6 @@ clientRouter.get('/therapists', clientController.getTherapists);
 clientRouter.get('/therapist/:therapistId', clientController.getTherapistDetails);
 clientRouter.get('/therapist/:therapistId/slots', clientController.getTherapistSlots);
 clientRouter.get('/therapist/:therapistId/slots/available', clientController.getAvailableSlots);
+clientRouter.get('/therapist/:therapistId/reviews', clientController.getTherapistReviews);
 
 export default clientRouter;
